@@ -4,7 +4,12 @@ Versatile logging utility for MATLAB.  Log to the console, one or more files, th
 
 ## Getting Started
 
-Clone this repository into your path or use [MATLAB's addpath](http://www.mathworks.com/help/matlab/ref/addpath.html) to add this repository to your path.
+Clone this repository into your path or use [MATLAB's addpath](http://www.mathworks.com/help/matlab/ref/addpath.html) to add this repository to your path.  When using matlog, you can either prefix all functions and classes with `logging.` or put an:
+
+  ```
+  import logging.*;
+  ```
+statement in your main script or the MATLAB prompt.  In the examples below the `import` statement has been omitted for brevity, but it is still required if you intend to leave off `logging.` from the front of the function and class names.
 
 ## Creating an instance of a Logger
 
@@ -24,7 +29,7 @@ Clone this repository into your path or use [MATLAB's addpath](http://www.mathwo
 * Create a logger that logs all messages to the console and a logfile:
 
   ```
-  logOptions = struct('logLevel', logging.LogLevel.ALL, 'file', 'log.out');
+  logOptions = struct('logLevel', LogLevel.ALL, 'file', 'log.out');
   logger = configureLogging(logOptions);
   logger.info('Logging to both the console and log.out logfile.');
   ```
@@ -75,9 +80,9 @@ For those systems that support the `logger` command line utility, the Syslog Log
 
   ```
   logOptions = struct( ...
-      'logLevel', logging.LogLevel.ALL, ...
-      'file', 'log.out', 'fileLogLevel', logging.LogLevel.WARNING, ...
-      'syslog', 'on', 'syslogLogLevel', logging.LogLevel.CRITICAL, ...
+      'logLevel', LogLevel.TRACE, ...
+      'file', 'log.out', 'fileLogLevel', LogLevel.WARNING, ...
+      'syslog', 'on', 'syslogLogLevel', LogLevel.CRITICAL, ...
   );
   logger = configureLogging(logOptions);
   logger.error('Let''s get to logging!');
@@ -90,15 +95,15 @@ Sometimes you want a highly customized logging experience, with many logs loggin
 Start with a basic console logger:
 
   ```
-  logger = logging.configureLogging();
+  logger = configureLogging();
   ```
 
 Then decide to add two File Loggers that log at level TRACE and above:
 
   ```
-  traceLogs = logging.configureLogging(struct( ...
+  traceLogs = configureLogging(struct( ...
       'console', 'off', ...
-      'files', {{'log1.out', 'log2.out'}}, 'fileLogLevel', logging.LogLevel.DEBUG ...
+      'files', {{'log1.out', 'log2.out'}}, 'fileLogLevel', LogLevel.DEBUG ...
   ));
   logger.addLogger(traceLogs);
   ```
@@ -106,9 +111,9 @@ Then decide to add two File Loggers that log at level TRACE and above:
 Then also decide that to add a Syslog logger at facility 'local1' at level ALERT and above:
 
   ```
-  syslog = logging.configureLogging(struct( ...
+  syslog = configureLogging(struct( ...
       'console', 'off', ...
-      'syslog', 'on', 'facility', 'local1', 'syslogLogLevel', logging.LogLevel.ALERT ...
+      'syslog', 'on', 'facility', 'local1', 'syslogLogLevel', LogLevel.ALERT ...
   ));
   logger.addLogger(syslog);
   ```
@@ -116,9 +121,9 @@ Then also decide that to add a Syslog logger at facility 'local1' at level ALERT
 And one more file log to log messages WARNING and above:
 
   ```
-  warningLogs = logging.configureLogging(struct( ...
+  warningLogs = configureLogging(struct( ...
       'console', 'off', ...
-      'file', 'log3.out', 'fileLogLevel', logging.LogLevel.WARNING ...
+      'file', 'log3.out', 'fileLogLevel', LogLevel.WARNING ...
   ));
   logger.addLogger(warningLogs);
   ```
@@ -160,7 +165,7 @@ When using `configureLogging`, you can set a global log level for all logging lo
 * Create a logger that logs only ERROR messages and above to the console:
 
   ```
-  logOptions = struct('logLevel', logging.LogLevel.ERROR);
+  logOptions = struct('logLevel', LogLevel.ERROR);
   logger = configureLogging(logOptions);
   logger.warning('This won''t be logged to the screen.');
   logger.alert('But this will.');
@@ -170,8 +175,8 @@ When using `configureLogging`, you can set a global log level for all logging lo
 
   ```
   logOptions = struct( ...
-      'logLevel', logging.LogLevel.ERROR, 'file', 'log.out', ...
-      'fileLogLevel', logging.LogLevel.TRACE ...
+      'logLevel', LogLevel.ERROR, 'file', 'log.out', ...
+      'fileLogLevel', LogLevel.TRACE ...
   );
   logger = configureLogging(logOptions);
   logger.warning('This won''t be logged to the screen.');
@@ -184,11 +189,11 @@ The `setLogLevel` method can be used to refine log levels dynamically at runtime
 
   ```
   if strcmp(getenv('PRODUCTION'), 'TRUE')
-      logger.setLogLevel(logging.LogLevel.WARNING);
+      logger.setLogLevel(LogLevel.WARNING);
   elseif strcmp(getenv('STAGING'), 'TRUE')
-      logger.setLogLevel(logging.LogLevel.INFO);
+      logger.setLogLevel(LogLevel.INFO);
   elseif strcmp(getenv('DEVELOPMENT'), 'TRUE')
-      logger.setLogLevel(logging.LogLevel.TRACE);
+      logger.setLogLevel(LogLevel.TRACE);
   end
   ```
 
