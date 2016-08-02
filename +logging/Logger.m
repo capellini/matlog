@@ -199,8 +199,33 @@ classdef Logger < handle
             if length(stackNames) + 1 == lastSelfReference
                 callStack = '';
             else
-                callStack = [strjoin(flip({stackNames{lastSelfReference:end}}), ' > ') ' :: '];
+                callStack = [ ...
+                  strjoin(obj.flipStackNames({stackNames{lastSelfReference:end}}), ' > ') ' :: ' ...
+                ];
             end
+        end
+
+        function flippedNames = flipStackNames(obj, stackNames)
+          try
+            flippedNames = flip(stackNames);
+          catch ME
+            switch ME.identifier
+              case 'MATLAB:UndefinedFunction'
+                % Ref: https://github.com/capellini/matlog/issues/1
+                flippedNames = obj.flipCellArray(stackNames);
+              otherwise
+                rethrow(ME);
+            end
+          end
+        end
+
+        function flippedNames = flipCellArray(obj, stackNames)
+        %% Custom flip() for use with cell arrays for compatability with
+        %% versions of MATLAB pre-2013b
+          flippedNames = {};
+          for i = 1:length(stackNames)
+            flippedNames = {stackNames{i} flippedNames{:}};
+          end
         end
 
         function internalSetLogLevel(obj, level)
