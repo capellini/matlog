@@ -209,4 +209,4 @@ If you run into issues using this pacakge, please submit an issue on the issue t
 
 ## Contributing
 
-Contributions are always welcome via pull request.  Please abide by the .editorconfig file by using the [editorconfig plugin](http://editorconfig.org/#download) for your editor of choice.
+Contributions are always welcome via pull request.  Please abide by the `.editorconfig` file by using the [editorconfig plugin](http://editorconfig.org/#download) for your editor of choice.
