@@ -1,5 +1,18 @@
 %% Cheat sheet of logging commands
 %
+% NOTE: In the following examples, I use a struct to pass in arguments to
+% the configureLogging factory.  However, you may also pass in "classic
+% MATLAB-style" arguments, if that is the style that you prefer.
+%
+% For example, instead of doing this:
+%
+%    >> logOptions = struct('logLevel', logging.LogLevel.ERROR);
+%    >> logger = configureLogging(logOptions);
+%
+% You can just as easily do this:
+%
+%    >> logger = configureLogging('logLevel', logging.LogLevel.ERROR);
+%
 %  Logger creation:
 %    The easiest way to configure your logging is to use the
 %    logging.configureLogging command.  This will automatically configure all
@@ -23,7 +36,7 @@
 %    >> logOptions = struct( ...
 %           'logLevel', logging.LogLevel.ALL, ...
 %           'file', 'log.out', 'fileLogLevel', logging.LogLevel.WARNING, ...
-%           'syslog', 'on', 'syslogLogLevel', logging.LogLevel.CRITICAL, ...
+%           'syslog', 'on', 'syslogLogLevel', logging.LogLevel.CRITICAL ...
 %       );
 %    >> logger = configureLogging(logOptions);
 %

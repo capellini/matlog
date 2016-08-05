@@ -19,7 +19,7 @@ classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
         end
 
         function TestDefault(testCase)
-            logger = testCase.initAndVerifyCompositeLogger({}, 1);
+            logger = testCase.initAndVerifyCompositeLogger(false, 1);
             testCase.verifyClass(logger.loggers{1}, ?logging.ConsoleLogger);
         end
 
@@ -30,6 +30,14 @@ classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
                 testCase.verifyClass(logger.loggers{1}, ?logging.ConsoleLogger);
                 testCase.verifyEqual(logger.loggers{1}.logLevel, logLevel);
             end
+        end
+
+        function TestPassOptsInClassicMatlabStyle(testCase)
+        %% Test passing in args as key value pairs, rather than as a struct
+            logger = logging.configureLogging('console', 'off', 'file', 'log.out');
+            testCase.verifyClass(logger, ?logging.CompositeLogger);
+            testCase.verifyLength(logger.loggers, 1);
+            testCase.verifyFileLogger(logger.loggers{1}, 'log.out');
         end
 
         function TestSingleFileLogger(testCase)
@@ -97,6 +105,12 @@ classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
 
     methods
         function logger = initAndVerifyCompositeLogger(testCase, options, numLoggers)
+            if isstruct(options)
+                options = options;
+            else
+                options = struct();
+            end
+
             logger = logging.configureLogging(options);
             testCase.verifyClass(logger, ?logging.CompositeLogger);
             testCase.verifyLength(logger.loggers, numLoggers);

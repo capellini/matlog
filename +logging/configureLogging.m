@@ -23,11 +23,19 @@ function logger = configureLogging(varargin)
 %   Description:
 %
 %     Configure logging for a session or script.  Options are specified by
-%     passing in a struct with the desired options (covered below).  For
-%     example, to add logging to a log file that is named 'log.out', pass in
-%     OptionsStruct = struct('file', 'log.out').  Logging to the console, a
-%     file, and syslog/rsyslog/systemd (via the command-line 'logger'
-%     utility) are supported.
+%     passing in a struct, or in classic MATLAB name/value pair arguments,
+%     with the desired options (covered below).  For example, to add logging
+%     to a log file that is named 'log.out', do one of the following:
+%
+%     OptionsStruct = struct('file', 'log.out')
+%     logger = configureLogging(OptionsStruct);
+%
+%     OR:
+%
+%     logger = configureLogging('file', 'log.out');
+%
+%     Logging to the console, a file, and syslog/rsyslog/systemd (via the
+%     command-line 'logger' utility) are supported.
 %
 %   Input arguments:
 %     The following input arguments are specified by using properties in a
@@ -90,7 +98,7 @@ function logger = configureLogging(varargin)
 %    logOptions = struct( ...
 %        'logLevel', logging.LogLevel.ALL, ...
 %        'file', 'log.out', 'fileLogLevel', logging.LogLevel.WARNING, ...
-%        'syslog', 'on', 'syslogLogLevel', logging.LogLevel.CRITICAL, ...
+%        'syslog', 'on', 'syslogLogLevel', logging.LogLevel.CRITICAL ...
 %    );
 %    logger = configureLogging(logOptions);
 %
@@ -129,10 +137,27 @@ end
 
 function options = getOptions(varargin)
     if nargin > 0
-        options = varargin{1};
+        if argumentsAreInStruct(varargin{:})
+            options = varargin{1};
+        elseif argumentsAreInClassicMatlabStyle(varargin{:})
+            options = struct(varargin{:});
+        else
+            throw(MException( ...
+                'logging:InvalidArguments',  ...
+                'Unrecognized arguments when initializing logger' ...
+            ));
+        end
     else
         options = struct();
     end
+end
+
+function argumentsInStruct = argumentsAreInStruct(varargin)
+    argumentsInStruct = isstruct(varargin{1});
+end
+
+function inClassicStyle = argumentsAreInClassicMatlabStyle(varargin)
+    inClassicStyle = (ischar(varargin{1}) && mod(nargin, 2) == 0);
 end
 
 function turnedOff = consoleLoggingExplicitlyTurnedOff(options)

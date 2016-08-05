@@ -13,6 +13,8 @@ statement in your main script or the MATLAB prompt.  In the examples below the `
 
 ## Creating an instance of a Logger
 
+NOTE: In the following examples, I use a `struct` to pass in arguments to the `configureLogging` factory.  However, you may also pass in "classic MATLAB-style" arguments (i.e. `logging.configureLogging('console', 'off', 'file', 'log.out')`) instead, if that is the style that you prefer.
+
 ### Console Logger
 
 * To get started with matlog and start logging to the console, create a logger using the `configureLogging` factory method with no arguments.  This will create a console logger that that logs only INFO messages and above to the console:
