@@ -42,6 +42,49 @@ classdef CompositeLogger < logging.Logger
         function setSyslogLogLevel(obj, level)
             obj.setLoggerOfTypeToLevel('logging.SyslogLogger', level);
         end
+
+        function varargout = logCommand(obj, commandString, varargin)
+            messagePrefix = obj.formatLevelPrefix('COMMAND');
+
+            for j = 1:length(obj.loggers)
+                obj.loggers{j}.formatAndLogMessage(messagePrefix, repmat('=', 1, 80));
+                obj.loggers{j}.formatAndLogMessage( ...
+                    messagePrefix, ...
+                    sprintf('Output of command %s follows', commandString) ...
+                );
+            end
+
+            % varargin contains scope variables or commands to run before running
+            % command with output to capture
+            for i = 1:nargin - 2
+                if ischar(varargin{i})
+                    T = evalc(varargin{i});
+                    if length(T) > 0
+                        for j = 1:length(obj.loggers)
+                            obj.loggers{j}.formatAndLogMessage(messagePrefix, T);
+                        end
+                    end
+                else
+                    varname = inputname(i + 2);
+                    eval([varname ' = varargin{i};']);
+                end
+            end
+
+            [T, varargout{1:nargout}] = evalc(commandString);
+            if length(T) > 0
+                for j = 1:length(obj.loggers)
+                    obj.loggers{j}.formatAndLogMessage(messagePrefix, T);
+                end
+            end
+
+            for j = 1:length(obj.loggers)
+                obj.loggers{j}.formatAndLogMessage( ...
+                    messagePrefix, ...
+                    sprintf('Output of command %s complete', commandString) ...
+                );
+                obj.loggers{j}.formatAndLogMessage(messagePrefix, repmat('=', 1, 80));
+            end
+        end
     end
 
     methods (Access = protected)
