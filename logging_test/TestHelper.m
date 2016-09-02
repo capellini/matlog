@@ -33,8 +33,14 @@ classdef TestHelper < handle
             end
         end
 
-        function verifyLogEntry(testCase, logFile, logString)
-            fileData = TestHelper.getFileData(testCase, logFile);
+        function verifyLogEntry(testCase, logFile, logString, varargin)
+            if nargin > 3
+                options = varargin;
+            else
+                options = {};
+            end
+
+            fileData = TestHelper.getFileData(testCase, logFile, options{:});
             testCase.verifySubstring(fileData, logString);
         end
 
@@ -48,9 +54,38 @@ classdef TestHelper < handle
             testCase.verifyEqual(fgetLReturnValue, -1);
         end
 
-        function fileData = getFileData(testCase, logFile)
+        function verifyNumLinesInLog(testCase, logFile, numLines)
             fd = fopen(logFile);
-            fileData = fgetl(fd);
+            actualLines = 0;
+            tline = fgets(fd);
+            while tline ~= -1
+                actualLines = actualLines + 1;
+                tline = fgets(fd);
+            end
+            fclose(fd);
+
+            testCase.verifyEqual(actualLines, numLines);
+        end
+
+        function fileData = getFileData(testCase, logFile, varargin)
+            if nargin > 2
+                options = struct(varargin{:});
+            else
+                options = struct();
+            end
+
+            if isfield(options, 'lineNum')
+                lineNum = options.lineNum;
+            else
+                lineNum = 1;
+            end
+
+            fd = fopen(logFile);
+            currentLine = 0;
+            while currentLine < lineNum
+                fileData = fgetl(fd);
+                currentLine = currentLine + 1;
+            end
             fclose(fd);
         end
     end

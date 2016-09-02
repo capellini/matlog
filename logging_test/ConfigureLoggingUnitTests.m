@@ -13,6 +13,18 @@
 % limitations under the License.
 
 classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
+    properties
+        TESTLOG = 'testlog.out';
+    end
+
+    methods (TestMethodTeardown)
+        function removeTestFile(testCase)
+            if exist(testCase.TESTLOG, 'file')
+                delete(testCase.TESTLOG);
+            end
+        end
+    end
+
     methods (Test)
         function TestNullCase(testCase)
             testCase.initAndVerifyCompositeLogger(struct('console', 'off'), 0);
@@ -100,6 +112,67 @@ classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
             testCase.verifyEqual(logger.loggers{1}.logLevel, logging.LogLevel.TRACE);
             testCase.verifySyslogLogger(logger.loggers{2}, 'local0');
             testCase.verifyEqual(logger.loggers{2}.logLevel, logging.LogLevel.DEBUG);
+        end
+
+        function TestLogCommandNoOutputWithAssignment(testCase)
+            testCase.assumeTrue(~exist(testCase.TESTLOG, 'file'));
+
+            logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
+            sin0 = logger.logCommand('sin(0)');
+
+            TestHelper.verifyNumLinesInLog(testCase, testCase.TESTLOG, 4);
+            testCase.verifyEqual(sin0, 0);
+        end
+
+        function TestLogCommandNoOutputWithAssignments(testCase)
+            testCase.assumeTrue(~exist(testCase.TESTLOG, 'file'));
+
+            logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
+            [a, b, c] = logger.logCommand('deal(1)');
+
+            TestHelper.verifyNumLinesInLog(testCase, testCase.TESTLOG, 4);
+            testCase.verifyEqual(a, 1);
+            testCase.verifyEqual(b, 1);
+            testCase.verifyEqual(c, 1);
+        end
+
+        function TestLogCommandWithOutput(testCase)
+            testCase.assumeTrue(~exist(testCase.TESTLOG, 'file'));
+
+            logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
+            logger.logCommand('fprintf(''Logging output'')');
+
+            TestHelper.verifyNumLinesInLog(testCase, testCase.TESTLOG, 5);
+            TestHelper.verifyLogEntry( ...
+                testCase, testCase.TESTLOG, '[COMMAND]   :: Logging output', 'lineNum', 3 ...
+            );
+        end
+
+        function TestLogCommandPassScopeAsString(testCase)
+            testCase.assumeTrue(~exist(testCase.TESTLOG, 'file'));
+
+            logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
+            x = logger.logCommand( ...
+                'fmincon(fun,x0,A,b)', ...
+                'fun = @(x)100*(x(2)-x(1)^2)^2 + (1-x(1))^2, x0 = [-1,2], A = [1,2], b = 1' ...
+            );
+
+            testCase.verifyEqual(x, [-0.9976 0.9951], 'AbsTol', 1e-4);
+        end
+
+        function TestLogCommandPassScopeAsVariables(testCase)
+            testCase.assumeTrue(~exist(testCase.TESTLOG, 'file'));
+
+            logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
+
+            fun = @(x)100*(x(2)-x(1)^2)^2 + (1-x(1))^2;
+            x0 = [-1,2];
+            A = [1,2];
+            b = 1;
+
+            x = logger.logCommand('fmincon(fun,x0,A,b)', fun, x0, A, b);
+
+            testCase.verifyEqual(x, [-0.9976 0.9951], 'AbsTol', 1e-4);
         end
     end
 
