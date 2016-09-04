@@ -73,7 +73,7 @@ classdef CompositeLogger < logging.Logger
 
             [T, varargout{1:nargout}] = evalc(commandString);
             if length(T) > 0
-              T = obj.stripHtmlTags(T);
+                T = obj.stripHtmlTags(T);
                 for j = 1:length(obj.loggers)
                     obj.loggers{j}.formatAndLogMessage(messagePrefix, T);
                 end
@@ -104,9 +104,9 @@ classdef CompositeLogger < logging.Logger
         end
 
         function T = stripHtmlTags(obj, T)
-          pat = '<a href[^>]*>';
-          T = regexprep(T, pat, '');
-          T = regexprep(T, '</a>', '');
+            pat = '<a href[^>]*>';
+            T = regexprep(T, pat, '');
+            T = regexprep(T, '</a>', '');
         end
     end
 end
