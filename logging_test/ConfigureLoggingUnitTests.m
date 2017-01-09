@@ -153,11 +153,11 @@ classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
 
             logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
             x = logger.logCommand( ...
-                'fmincon(fun,x0,A,b)', ...
-                'fun = @(x)100*(x(2)-x(1)^2)^2 + (1-x(1))^2, x0 = [-1,2], A = [1,2], b = 1' ...
+                'fminunc(fun, x0)', ...
+                'fun = @(x) x^2, x0 = 1' ...
             );
 
-            testCase.verifyEqual(x, [-0.9976 0.9951], 'AbsTol', 1e-4);
+            testCase.verifyEqual(x, 0, 'AbsTol', 1e-4);
         end
 
         function TestLogCommandPassScopeAsVariables(testCase)
@@ -165,14 +165,12 @@ classdef ConfigureLoggingUnitTests < matlab.unittest.TestCase
 
             logger = logging.configureLogging('console', 'off', 'file', testCase.TESTLOG);
 
-            fun = @(x)100*(x(2)-x(1)^2)^2 + (1-x(1))^2;
-            x0 = [-1,2];
-            A = [1,2];
-            b = 1;
+            fun = @(x) x^2;
+            x0 = 1;
 
-            x = logger.logCommand('fmincon(fun,x0,A,b)', fun, x0, A, b);
+            x = logger.logCommand('fminunc(fun, x0)', fun, x0);
 
-            testCase.verifyEqual(x, [-0.9976 0.9951], 'AbsTol', 1e-4);
+            testCase.verifyEqual(x, 0, 'AbsTol', 1e-4);
         end
     end
 
