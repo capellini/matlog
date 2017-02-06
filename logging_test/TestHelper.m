@@ -68,11 +68,7 @@ classdef TestHelper < handle
         end
 
         function fileData = getFileData(testCase, logFile, varargin)
-            if nargin > 2
-                options = struct(varargin{:});
-            else
-                options = struct();
-            end
+            options = cell2struct({varargin{2:2:end}}, {varargin{1:2:end}}, 2);
 
             if isfield(options, 'lineNum')
                 lineNum = options.lineNum;

@@ -140,7 +140,7 @@ function options = getOptions(varargin)
         if argumentsAreInStruct(varargin{:})
             options = varargin{1};
         elseif argumentsAreInClassicMatlabStyle(varargin{:})
-            options = struct(varargin{:});
+            options = cell2struct({varargin{2:2:end}}, {varargin{1:2:end}}, 2);
         else
             throw(MException( ...
                 'logging:InvalidArguments',  ...
